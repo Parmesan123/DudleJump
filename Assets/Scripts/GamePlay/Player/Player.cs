@@ -31,11 +31,13 @@ namespace GamePlay
         public void Init(InputProvider inputProvider, Vector2 startPosition)
         {
             GameProfile gameProfile = inputProvider.GetProfile(ProfileType.GameProfile) as GameProfile;
-
-            if (gameProfile is null)
+            GameOverProfile profile = inputProvider.GetProfile(ProfileType.GameOverProfile) as GameOverProfile;
+            
+            if (gameProfile is null || profile is null)
                 throw new NullReferenceException();
-
+            
             gameProfile.PlayerMovementEvent += HorizontalMove;
+            profile.RestartEvent += Restart;
 
             _playerView = new PlayerView(GetComponentInChildren<SpriteRenderer>(), gameProfile);
         }
@@ -100,9 +102,7 @@ namespace GamePlay
             float yCoordinateOnScreen = _camera.WorldToScreenPoint(newPosition).y;
 
             if (yCoordinateOnScreen < 0)
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-            //TODO
+                GameOverEvent.Invoke();
         }
 
         private bool TrySwapSide(Vector2 newPosition)
@@ -123,6 +123,11 @@ namespace GamePlay
             }
 
             return false;
+        }
+
+        private void Restart()
+        {
+            transform.position = _startPosition;
         }
     }
 }

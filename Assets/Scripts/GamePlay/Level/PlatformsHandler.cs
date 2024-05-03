@@ -1,3 +1,4 @@
+using InputSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,11 +19,14 @@ namespace GamePlay
 		
 		public readonly List<Platform> ActivePlatforms;
 			
-		public PlatformsHandler(Transform platformContainer)
+		public PlatformsHandler(Transform platformContainer, InputProvider inputProvider)
 		{
 			ActivePlatforms = new List<Platform>();
 			_markedOfRemove = new List<Platform>();
 			_markedOfAdd = new List<Platform>();
+
+			GameOverProfile profile = inputProvider.GetProfile(ProfileType.GameOverProfile) as GameOverProfile;
+			profile.RestartEvent += Restart;
 			
 			Platform platformPrefab = Resources.Load<Platform>(PLATFORM_PATH);
 			MovePlatform movePlatformPrefab = Resources.Load<MovePlatform>(MOVE_PLATFORM_PATH);
@@ -83,6 +87,15 @@ namespace GamePlay
 			platform.DisablePlatformEvent -= MarkOfRemove;
 
 			_markedOfRemove.Add(platform);
+		}
+
+		private void Restart()
+		{
+			ActivePlatforms.Clear();
+			
+			_platforms.DestroyPool();
+			
+			_platforms.CreatePool(10);
 		}
 	}
 }

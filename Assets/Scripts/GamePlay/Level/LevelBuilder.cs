@@ -1,4 +1,5 @@
 using GamePlay;
+using InputSystem;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,11 +13,14 @@ public class LevelBuilder
 	private readonly List<Platform> _lastTemplatesPlatform;
 	private Platform _lastPlatform;
 
-	public LevelBuilder(PlatformsHandler platformsHandler, BuildTemplate startTemplate)
+	public LevelBuilder(PlatformsHandler platformsHandler, BuildTemplate startTemplate, InputProvider inputProvider)
 	{
 		_platformHandler = platformsHandler;
 		_currentTemplate = startTemplate;
 
+		GameOverProfile profile = inputProvider.GetProfile(ProfileType.GameOverProfile) as GameOverProfile;
+		profile.RestartEvent += Restart;
+		
 		_lastTemplatesPlatform = new List<Platform>();
 		
 		_currentTemplate.SetStartValue(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, 0)));
@@ -54,6 +58,15 @@ public class LevelBuilder
 		_lastTemplatesPlatform.Remove(platform);
 		
 		_currentTemplate.SetStartValue(_lastPlatform.Position);
+		
+		BuildLevel();
+	}
+
+	private void Restart()
+	{
+		_lastTemplatesPlatform.Clear();
+		
+		_currentTemplate.SetStartValue(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, 0)));
 		
 		BuildLevel();
 	}

@@ -9,6 +9,8 @@ namespace GamePlay
 		private const float VELOCITY = 9.8f;
 		private readonly Vector2 _velocityDirection = Vector2.down;
 
+		public event Action<float> MoveEvent;
+		
 		private Player _player;
 
 		private PlatformsHandler _platformsHandler;
@@ -18,13 +20,17 @@ namespace GamePlay
 
 		private bool _isInit = false;
 		
-		public void Init(Player player, PlatformsHandler platformsHandler)
+		public void Init(Player player, PlatformsHandler platformsHandler, InputProvider inputProvider)
 		{
 			_player = player;
 			_platformsHandler = platformsHandler;
 
+			GameOverProfile profile = inputProvider.GetProfile(ProfileType.GameOverProfile) as GameOverProfile;
+			profile.RestartEvent += Restart;
+			
 			_player.TouchPlatformEvent += PlayerTouchPlatform;
-
+			_player.GameOverEvent += GameOver;
+			
 			_currentSpeed = _player.JumpSpeed;
 
 			_isInit = true;
@@ -52,9 +58,9 @@ namespace GamePlay
 				_platformsHandler.RemoveMarkedPlatform();
 				
 				foreach (Platform platform in _platformsHandler.ActivePlatforms)
-				{
 					platform.Move(_velocityDirection, -_currentSpeed);
-				} 
+				
+				MoveEvent?.Invoke(_currentSpeed * Time.fixedDeltaTime);
 				
 				return;
 			}
@@ -66,10 +72,22 @@ namespace GamePlay
 		{
 			_currentSpeed -= VELOCITY * _velocityDirection.y * Time.fixedDeltaTime;
 		}
-
+		
 		private void PlayerTouchPlatform()
 		{
 			_currentSpeed = _player.JumpSpeed;
+		}
+
+		private void GameOver()
+		{
+			_isInit = false;
+		}
+		
+		private void Restart()
+		{
+			_currentSpeed = _player.JumpSpeed;
+			
+			_isInit = true;
 		}
 	}
 }

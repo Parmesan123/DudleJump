@@ -14,9 +14,11 @@ namespace InputSystem
 
 		private void Restart()
 		{
-			if (Input.GetKeyDown(KeyCode.Space))
-				RestartEvent.Invoke();
-
+			if (!Input.GetKey(KeyCode.Space))
+				return;
+			
+			RestartEvent.Invoke();
+			
 			ChangeProfile(ProfileType.GameProfile);
 		}
 	}

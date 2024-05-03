@@ -99,15 +99,17 @@ public class BuildTemplate : ScriptableObject
 
     private void SetBonus(Platform platform)
     {
-        BonusItemData itemData = _bonusItems[Random.Range(0, _bonusItems.Length)];
+        foreach (BonusItemData itemData in _bonusItems)
+        {
+            if (!(Random.Range(0f, 1f) <= itemData.ChanceSpawn))
+                continue;
 
-        if (!(Random.Range(0f, 1f) <= itemData.ChanceSpawn)) 
-            return;
-        
-        BonusItem item = _itemFactory.GetItem(itemData.BonusItemType);
-            
-        item.transform.SetParent(platform.transform);
-        item.transform.localPosition = new Vector2(Random.Range(-1, 1) * 0.8f, 0.3f);
-        item.SetPlatform(platform);
+            BonusItem item = _itemFactory.GetItem(itemData.BonusItemType);
+
+            item.transform.SetParent(platform.transform);
+            item.transform.localPosition = new Vector2(Random.Range(-1, 1) * 0.8f, 0.3f);
+            item.SetPlatform(platform);
+            break;
+        }
     }
 }

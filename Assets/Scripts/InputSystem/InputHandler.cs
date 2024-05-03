@@ -1,3 +1,4 @@
+using GamePlay;
 using JetBrains.Annotations;
 using System;
 using UnityEngine;
@@ -14,12 +15,15 @@ namespace InputSystem
 			_inputProvider = inputProvider;
 
 			foreach (InputProfile inputProfile in inputProvider.InputProfiles)
-			{
 				inputProfile.ChangeProfileEvent += ChangeProfile;
-			}
 
 			_currentProfile = _inputProvider.GetProfile(ProfileType.GameProfile);
 			_currentProfile.ChangeProfileEvent += ChangeProfile;
+		}
+
+		public void InitGameOver(Player player)
+		{
+			player.GameOverEvent += GameOver;
 		}
 		
 		private void FixedUpdate()
@@ -32,6 +36,11 @@ namespace InputSystem
 			_currentProfile.ChangeProfileEvent -= ChangeProfile;
 			_currentProfile = _inputProvider.GetProfile(newInputProfile);
 			_currentProfile.ChangeProfileEvent += ChangeProfile;
+		}
+
+		private void GameOver()
+		{
+			ChangeProfile(ProfileType.GameOverProfile);
 		}
 	}
 }
